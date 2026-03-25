@@ -5,13 +5,20 @@ from utils.grok_client import GrokClient
 import datetime
 
 config = Config()
-grok = GrokClient()
 
 class BasePage:
     """Base class for all Page Objects with self-healing capability"""
     def __init__(self, page: Page):
         self.page = page
         self.timeout = config.timeout
+        self._grok = None
+
+    @property
+    def grok(self):
+        """Lazy initialization of GrokClient"""
+        if self._grok is None:
+            self._grok = GrokClient()
+        return self._grok
 
     def navigate(self, url: str = None):
         """Navigate to URL (uses base_url from config if none provided)"""
@@ -32,5 +39,5 @@ class BasePage:
 
     def smart_locator(self, original_selector: str, element_description: str):
         """Return a healed locator using Grok if needed"""
-        healed = grok.heal_locator(self.page, original_selector, element_description)
+        healed = self.grok.heal_locator(self.page, original_selector, element_description)
         return self.page.locator(healed)

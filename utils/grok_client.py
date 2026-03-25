@@ -9,7 +9,18 @@ load_dotenv()
 class GrokClient:
     """Client to interact with Grok API (xAI)"""
     def __init__(self):
-        self.client = Client(api_key=os.getenv("XAI_API_KEY"))
+        self._client = None
+
+    @property
+    def client(self):
+        """Lazy initialization of the xAI Client"""
+        if self._client is None:
+            api_key = os.getenv("XAI_API_KEY")
+            if not api_key:
+                raise ValueError("XAI_API_KEY environment variable is missing. "
+                                 "AI-powered features will not work.")
+            self._client = Client(api_key=api_key)
+        return self._client
 
     def get_response(self, prompt: str, model: str = "grok-4") -> str:
         """Send prompt to Grok and return response"""
