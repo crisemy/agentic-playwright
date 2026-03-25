@@ -10,15 +10,6 @@ config = Config()
 AUTH_STATE_PATH = Path("auth/storage_state.json")
 
 
-def pytest_addoption(parser):
-    """Add --browser option to select browser: chromium, firefox, webkit"""
-    parser.addoption(
-        "--browser",
-        action="store",
-        default="chromium",
-        help="Browser to run tests with: chromium, firefox, or webkit"
-    )
-
 
 @pytest.fixture(scope="session")
 def browser_name(request):
