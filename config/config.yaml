@@ -1,0 +1,17 @@
+base_url: "https://www.saucedemo.com"
+timeout: 30000
+headless: false
+slow_mo: 500
+
+environments:
+  dev: "https://dev.myapp.com"
+  staging: "https://staging.myapp.com"
+  prod: "https://www.myapp.com"
+
+users:
+  standard:
+    username: "standard_user"
+    password: "secret_sauce"
+  locked:
+    username: "locked_out_user"
+    password: "secret_sauce"

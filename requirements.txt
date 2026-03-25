@@ -1,0 +1,8 @@
+playwright
+pytest
+pytest-html
+pytest-xdist
+pyyaml
+python-dotenv
+xai-sdk
+openai
