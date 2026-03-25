@@ -3,11 +3,9 @@ import pytest
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from utils.config_loader import Config
-from utils.grok_client import GrokClient
 from pages.login_page import LoginPage
 
 config = Config()
-grok = GrokClient()
 
 AUTH_STATE_PATH = Path("auth/storage_state.json")
 
@@ -23,17 +21,27 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="session")
-def browser(request):
-    """Launch requested browser once per session"""
-    browser_name = request.config.getoption("--browser")
-    print(f"🚀 Launching {browser_name} browser...")
+def browser_name(request):
+    return request.config.getoption("--browser")
+
+
+@pytest.fixture(scope="session")
+def playwright_instance():
+    """Start a single Playwright instance for the session"""
     with sync_playwright() as p:
-        browser = getattr(p, browser_name).launch(
-            headless=config.headless,
-            slow_mo=config.slow_mo
-        )
-        yield browser
-        browser.close()
+        yield p
+
+
+@pytest.fixture(scope="session")
+def browser(playwright_instance, browser_name):
+    """Launch requested browser once per session"""
+    print(f"🚀 Launching {browser_name} browser...")
+    b = getattr(playwright_instance, browser_name).launch(
+        headless=config.headless,
+        slow_mo=config.slow_mo
+    )
+    yield b
+    b.close()
 
 
 @pytest.fixture(scope="function")

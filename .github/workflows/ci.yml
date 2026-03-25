@@ -1,5 +1,5 @@
 # .github/workflows/ci.yml
-name: Playwright Async Tests - Multi-Browser CI
+name: Playwright POM Tests - Multi-Browser CI
 
 on:
   push:
@@ -17,13 +17,6 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
         python-version: ['3.12']
-        include:
-          - browser: chromium
-            playwright-browser: chromium
-          - browser: firefox
-            playwright-browser: firefox
-          - browser: webkit
-            playwright-browser: webkit
 
     steps:
       - name: Checkout code
@@ -35,28 +28,25 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Install Playwright browsers
-        run: |
-          playwright install ${{ matrix.playwright-browser }} --with-deps
+      - name: Install Playwright browser
+        run: playwright install ${{ matrix.browser }} --with-deps
 
       - name: Create necessary directories
-        run: |
-          mkdir -p screenshots auth reports
+        run: mkdir -p screenshots auth reports
 
-      - name: Run Playwright Tests on ${{ matrix.browser }}
+      - name: Run tests on ${{ matrix.browser }}
         env:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
         run: |
-          pytest -n auto \
+          pytest \
             --browser ${{ matrix.browser }} \
             --html=reports/report-${{ matrix.browser }}.html \
             --self-contained-html \
-            -q
+            -v
 
-      - name: Upload test report for ${{ matrix.browser }}
+      - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
