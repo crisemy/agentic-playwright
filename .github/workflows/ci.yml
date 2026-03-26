@@ -37,12 +37,16 @@ jobs:
       - name: Run Classic Async pytest Suite (parallel)
         env:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          HEADLESS: true
+          SLOW_MO: 0
         run: |
           pytest -n auto --browser ${{ matrix.browser }} --html=reports/pytest-${{ matrix.browser }}.html -q
 
       - name: Run Agentic CrewAI Swarm
         env:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          HEADLESS: true
+          SLOW_MO: 0
         run: |
           python -m agents.testing_crew
 
