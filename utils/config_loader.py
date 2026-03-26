@@ -1,4 +1,5 @@
 import yaml
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -13,8 +14,15 @@ class Config:
         
         self.base_url = self.data["base_url"]
         self.timeout = self.data.get("timeout", 30000)
-        self.headless = self.data.get("headless", True)
-        self.slow_mo = self.data.get("slow_mo", 0)
+        
+        # Priority: Environment variable > YAML config > Default
+        env_headless = os.getenv("HEADLESS")
+        if env_headless is not None:
+            self.headless = env_headless.lower() == "true"
+        else:
+            self.headless = self.data.get("headless", True)
+            
+        self.slow_mo = int(os.getenv("SLOW_MO", self.data.get("slow_mo", 0)))
 
     def get_user(self, user_type: str = "standard"):
         """Returns user credentials from config"""
