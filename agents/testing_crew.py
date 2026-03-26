@@ -121,7 +121,7 @@ testing_crew = Crew(
     manager_llm=llm,
     planning_llm=llm,
     verbose=True,
-    memory=True,
+    memory=False,
     planning=True
 )
 
