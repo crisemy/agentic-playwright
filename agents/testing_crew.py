@@ -56,7 +56,8 @@ test_decider = Agent(
     backstory="Senior QA Architect focused on risk-based testing.",
     llm=llm,
     verbose=True,
-    allow_delegation=True
+    allow_delegation=True,
+    max_rpm=2
 )
 
 test_executor = Agent(
@@ -65,7 +66,8 @@ test_executor = Agent(
     backstory="Precise automation engineer specialized in Playwright.",
     tools=[execute_playwright_test],
     llm=llm,
-    verbose=True
+    verbose=True,
+    max_rpm=2
 )
 
 test_generator = Agent(
@@ -74,7 +76,8 @@ test_generator = Agent(
     backstory="Creative and experienced test automation developer.",
     tools=[generate_new_test_code],
     llm=llm,
-    verbose=True
+    verbose=True,
+    max_rpm=2
 )
 
 result_analyzer = Agent(
@@ -82,7 +85,8 @@ result_analyzer = Agent(
     goal="Analyze outcomes, detect issues, and recommend self-healing or new tests",
     backstory="Detail-oriented QA analyst focused on quality improvement.",
     llm=llm,
-    verbose=True
+    verbose=True,
+    max_rpm=2
 )
 
 # ====================== Tasks ======================
@@ -122,7 +126,8 @@ testing_crew = Crew(
     planning_llm=llm,
     verbose=True,
     memory=False,
-    planning=False
+    planning=False,
+    max_rpm=2
 )
 
 async def run_full_agentic_swarm(changes: str = "Login and checkout flows were updated", url: str = None):
