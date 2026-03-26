@@ -11,9 +11,22 @@ class GrokClient:
     
     def __init__(self):
         self.api_key = os.getenv("XAI_API_KEY")
-        # CrewAI-compatible LLM wrapper (uses LiteLLM under the hood for xAI)
+        
+        # --- Preventive Validation ---
+        if not self.api_key:
+            raise ValueError(
+                "\n❌ ERROR: XAI_API_KEY is missing! \n"
+                "Please configure 'XAI_API_KEY' as a GitHub Action Secret or set it in your .env file.\n"
+                "Get your key at: https://console.x.ai/"
+            )
+        
+        # Ensure it's in the environment for internal calls too
+        os.environ["XAI_API_KEY"] = self.api_key
+
+        # CrewAI-compatible LLM wrapper
+        # Using "openai/xai" prefix because xAI is OpenAI-compatible (more stable provider in LiteLLM)
         self.llm = LLM(
-            model="xai/grok-4",           # or "grok-beta" depending on your access
+            model="openai/grok-4",   # or "openai/grok-beta"
             api_key=self.api_key,
             base_url="https://api.x.ai/v1"
         )
