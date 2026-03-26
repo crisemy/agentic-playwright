@@ -119,6 +119,7 @@ testing_crew = Crew(
     tasks=[decide_task, execute_task, generate_task, analyze_task],
     process=Process.hierarchical,      # Manager coordinates the swarm
     manager_llm=llm,
+    planning_llm=llm,
     verbose=True,
     memory=True,
     planning=True
