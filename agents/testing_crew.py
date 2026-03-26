@@ -122,7 +122,7 @@ testing_crew = Crew(
     planning_llm=llm,
     verbose=True,
     memory=False,
-    planning=True
+    planning=False
 )
 
 async def run_full_agentic_swarm(changes: str = "Login and checkout flows were updated", url: str = None):
