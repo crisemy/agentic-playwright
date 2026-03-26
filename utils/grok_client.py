@@ -10,12 +10,26 @@ class GrokClient:
     """Unified Grok client used by both direct calls and CrewAI agents"""
     
     def __init__(self):
-        self.api_key = os.getenv("XAI_API_KEY")
-        # CrewAI-compatible LLM wrapper (uses LiteLLM under the hood for xAI)
+        # Support both GROQ_API_KEY or XAI_API_KEY for convenience
+        self.api_key = os.getenv("GROQ_API_KEY") or os.getenv("XAI_API_KEY")
+        
+        # --- Preventive Validation ---
+        if not self.api_key:
+            raise ValueError(
+                "\n❌ ERROR: API Key is missing! \n"
+                "Please configure 'GROQ_API_KEY' as a GitHub Action Secret or set it in your .env file.\n"
+                "Get your key at: https://console.groq.com/"
+            )
+        
+        # Ensure it's in the environment for internal calls
+        os.environ["GROQ_API_KEY"] = self.api_key
+
+        # CrewAI-compatible LLM wrapper
+        # Using Groq's super fast inference with Llama 3.3 70B
         self.llm = LLM(
-            model="xai/grok-4",           # or "grok-beta" depending on your access
+            model="groq/llama-3.3-70b-versatile",
             api_key=self.api_key,
-            base_url="https://api.x.ai/v1"
+            base_url="https://api.groq.com/openai/v1"
         )
 
     # === Direct async calls (kept for your existing self-healing) ===
