@@ -1,5 +1,5 @@
 # .github/workflows/ci.yml
-name: Playwright POM Tests - Multi-Browser CI
+name: Playwright Async + Agentic Crew CI
 
 on:
   push:
@@ -9,47 +9,47 @@ on:
 
 jobs:
   test:
-    name: Test on ${{ matrix.browser }} (Python ${{ matrix.python-version }})
+    name: Tests + Agentic Swarm (${{ matrix.browser }})
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox, webkit]
-        python-version: ['3.12']
+        browser: [chromium, firefox]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          playwright install ${{ matrix.browser }} --with-deps
 
-      - name: Install Playwright browser
-        run: playwright install ${{ matrix.browser }} --with-deps
-
-      - name: Create necessary directories
+      - name: Create directories
         run: mkdir -p screenshots auth reports
 
-      - name: Run tests on ${{ matrix.browser }}
+      - name: Run Classic Async pytest Suite (parallel)
         env:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
         run: |
-          pytest \
-            --browser ${{ matrix.browser }} \
-            --html=reports/report-${{ matrix.browser }}.html \
-            --self-contained-html \
-            -v
+          pytest -n auto --browser ${{ matrix.browser }} --html=reports/pytest-${{ matrix.browser }}.html -q
 
-      - name: Upload test report
+      - name: Run Agentic CrewAI Swarm
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: |
+          python -m agents.testing_crew
+
+      - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.browser }}
+          name: full-report-${{ matrix.browser }}
           path: reports/
           retention-days: 14

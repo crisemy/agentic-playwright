@@ -6,3 +6,5 @@ pyyaml
 python-dotenv
 xai-sdk
 openai
+crewai
+crewai-tools
