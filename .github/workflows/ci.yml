@@ -44,6 +44,7 @@ jobs:
 
       - name: Run Agentic CrewAI Swarm
         env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
           HEADLESS: true
           SLOW_MO: 0
