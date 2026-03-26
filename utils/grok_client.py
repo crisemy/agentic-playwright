@@ -25,9 +25,9 @@ class GrokClient:
         os.environ["GROQ_API_KEY"] = self.api_key
 
         # CrewAI-compatible LLM wrapper
-        # Using Groq's super fast inference with Llama 3.3 70B
+        # Using a faster, higher-limit model for CI to avoid RateLimits
         self.llm = LLM(
-            model="groq/llama-3.3-70b-versatile",
+            model="groq/llama-3.1-8b-instant",
             api_key=self.api_key,
             base_url="https://api.groq.com/openai/v1"
         )
