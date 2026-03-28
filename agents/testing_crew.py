@@ -1,12 +1,11 @@
 # agents/testing_crew.py
 from crewai import Agent, Task, Crew, Process
 from crewai.tools import tool
-from utils.grok_client import GrokClient
+from playwright.sync_api import sync_playwright
+
 from pages.login_page import LoginPage
 from utils.config_loader import Config
-from playwright.async_api import async_playwright
-import asyncio
-import os
+from utils.grok_client import GrokClient
 
 config = Config()
 grok_client = GrokClient()
@@ -17,20 +16,24 @@ llm = grok_client.get_llm()   # Reuse your existing GrokClient
 def execute_playwright_test(test_name: str, target_url: str) -> str:
     """Executes a real UI test using the existing Playwright POM framework."""
     try:
-        async def run():
-            async with async_playwright() as p:
-                browser = await p.chromium.launch(headless=config.headless)
-                context = await browser.new_context()
-                page = await context.new_page()
-                
-                login_page = LoginPage(page)
-                await login_page.navigate(target_url)
-                await login_page.login()
-                
-                result = f"✅ {test_name} PASSED → Final URL: {page.url}"
-                await browser.close()
-                return result
-        return asyncio.run(run())
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=config.headless,
+                slow_mo=config.slow_mo
+            )
+            context = browser.new_context()
+            page = context.new_page()
+
+            login_page = LoginPage(page)
+            login_page.navigate(target_url)
+            login_page.login()
+
+            result = f"✅ {test_name} PASSED -> Final URL: {page.url}"
+
+            page.close()
+            context.close()
+            browser.close()
+            return result
     except Exception as e:
         return f"❌ {test_name} FAILED: {str(e)}"
 
@@ -130,7 +133,7 @@ testing_crew = Crew(
     max_rpm=2
 )
 
-async def run_full_agentic_swarm(changes: str = "Login and checkout flows were updated", url: str = None):
+def run_full_agentic_swarm(changes: str = "Login and checkout flows were updated", url: str = None):
     target_url = url or config.base_url
     print("🚀 Starting Agentic Testing Swarm with Grok-powered CrewAI...\n")
     
@@ -146,4 +149,4 @@ async def run_full_agentic_swarm(changes: str = "Login and checkout flows were u
     return result
 
 if __name__ == "__main__":
-    asyncio.run(run_full_agentic_swarm())
+    run_full_agentic_swarm()
