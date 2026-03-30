@@ -75,6 +75,8 @@ pytest --browser firefox
 pytest --browser webkit
 ```
 
+![GitHub Actions CI](images/GitHub-CI.png)
+
 ---
 
 ## Project Structure
@@ -101,6 +103,7 @@ agentic-playwright/
 ## Key Capabilities
 
 - **Self-Healing Locators**: Automatically asks Grok for a better locator when an element can't be found
+- **Parallel Execution**: Scalable test runs using `pytest-xdist` to reduce execution time
 - **Storage State**: Save login once and reuse authentication across tests (faster runs)
 - **Agentic Testing**: Grok can decide which tests to run based on recent code changes
 - **Multi-Browser CI**: Tests run automatically on Chromium, Firefox, and WebKit on every push
