@@ -109,14 +109,14 @@
         <a href="/cart" class="cart-link">
             <span>🛒</span>
             Cart
-            <span class="cart-badge" id="cart-badge">0</span>
+            <span class="cart-badge" id="chaos-badge">0</span>
         </a>
     </header>
 
     <main class="products-container">
         <div class="products-header">
             <h2>All Products</h2>
-            <select class="sort-select" id="sort-select" onchange="sortProducts(this.value)">
+            <select class="sort-select" id="chaos-sort" onchange="sortProducts(this.value)">
                 <option value="az">Name (A-Z)</option>
                 <option value="za">Name (Z-A)</option>
                 <option value="lohi">Price (Low to High)</option>
@@ -124,7 +124,7 @@
             </select>
         </div>
 
-        <div class="products-grid" id="products-grid">
+        <div class="products-grid" id="chaos-grid">
             {% for product in products %}
             <div class="product-card" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-price="{{ product.price }}">
                 <img

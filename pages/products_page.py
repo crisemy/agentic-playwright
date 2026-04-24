@@ -12,13 +12,24 @@ class ProductsPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self._init_locators()
 
-    def _init_locators(self):
-        self.products_grid = self.page.locator("#products-grid")
-        self.product_cards = self.page.locator(".product-card")
-        self.cart_badge = self.page.locator("#cart-badge")
-        self.sort_select = self.page.locator("#sort-select")
+    def _product_title_locator(self, index: int):
+        return self.smart_locator(
+            f"#product-title-{index}",
+            f"Product title for product at index {index}"
+        )
+
+    def _product_price_locator(self, index: int):
+        return self.smart_locator(
+            f"#product-price-{index}",
+            f"Product price for product at index {index}"
+        )
+
+    def _add_to_cart_btn_locator(self, index: int):
+        return self.smart_locator(
+            f"#add-to-cart-btn-{index}",
+            f"'Add to Cart' button for product at index {index}"
+        )
 
     def navigate(self, url: str = None):
         """Navigate to the inventory page."""
@@ -31,13 +42,14 @@ class ProductsPage(BasePage):
 
     def get_product_count(self) -> int:
         """Return the number of visible product cards."""
-        return self.product_cards.count()
+        grid = self.smart_locator("#products-grid", "Products grid container")
+        return grid.locator(".product-card").count()
 
     def get_product_titles(self) -> list[str]:
         """Return all product titles visible on the page."""
         titles = []
         for i in range(1, self.get_product_count() + 1):
-            locator = self.page.locator(f"#product-title-{i}")
+            locator = self._product_title_locator(i)
             if locator.count() > 0:
                 titles.append(locator.inner_text())
         return titles
@@ -46,7 +58,7 @@ class ProductsPage(BasePage):
         """Return all product prices as floats."""
         prices = []
         for i in range(1, self.get_product_count() + 1):
-            locator = self.page.locator(f"#product-price-{i}")
+            locator = self._product_price_locator(i)
             if locator.count() > 0:
                 text = locator.inner_text().replace("$", "").strip()
                 prices.append(float(text))
@@ -54,18 +66,21 @@ class ProductsPage(BasePage):
 
     def get_cart_count(self) -> int:
         """Return the current cart badge count."""
-        text = self.cart_badge.inner_text()
+        badge = self.smart_locator("#cart-badge", "Shopping cart badge count")
+        text = badge.inner_text()
         return int(text) if text.isdigit() else 0
 
     def add_to_cart(self, index: int):
         """Click the 'Add to Cart' button for the product at 1-based index."""
-        btn = self.page.locator(f"#add-to-cart-btn-{index}")
+        btn = self._add_to_cart_btn_locator(index)
         btn.click()
 
     def sort_by(self, option: str):
         """Sort products by the given option: az, za, lohi, hilo."""
-        self.sort_select.select_option(option)
+        sort_select = self.smart_locator("#sort-select", "Product sort dropdown")
+        sort_select.select_option(option)
 
     def go_to_cart(self):
         """Navigate to the cart page."""
-        self.page.locator(".cart-link").click()
+        cart_link = self.smart_locator(".cart-link", "Shopping cart link")
+        cart_link.click()

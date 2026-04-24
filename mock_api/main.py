@@ -4,9 +4,8 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, Form, HTTPException, Response, Cookie, Request
+from fastapi import FastAPI, Form, HTTPException, Response, Cookie
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
 from jinja2 import Template
 
 from mock_api.products import PRODUCTS
@@ -17,6 +16,7 @@ app = FastAPI(title="Swag Labs Mock API")
 
 BASE_DIR = Path(__file__).parent
 TEMPLATES_DIR = BASE_DIR / "templates"
+RENDERED_HTML = TEMPLATES_DIR / "inventory_rendered.html"
 
 # In-memory session store: session_id -> username
 sessions: dict[str, str] = {}
@@ -31,7 +31,14 @@ def _load_template(name: str) -> str:
         return f.read()
 
 
-def _render_inventory():
+def _render_inventory() -> str:
+    """Render the inventory page.
+
+    If a chaos-mutated HTML file exists (from ChaosAgent), serve it instead.
+    This allows the chaos agent to break locators and have Playwright self-heal.
+    """
+    if RENDERED_HTML.exists():
+        return RENDERED_HTML.read_text(encoding="utf-8")
     template = Template(_load_template("inventory.html"))
     return template.render(products=PRODUCTS)
 

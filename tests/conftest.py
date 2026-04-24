@@ -26,7 +26,7 @@ def playwright_instance():
 @pytest.fixture(scope="session")
 def browser(playwright_instance, browser_name):
     """Launch requested browser once per session"""
-    print(f"🚀 Launching {browser_name} browser...")
+    print(f"[browser] Launching {browser_name} browser...")
     b = getattr(playwright_instance, browser_name).launch(
         headless=config.headless,
         slow_mo=config.slow_mo
@@ -53,7 +53,7 @@ def storage_state(browser):
         AUTH_STATE_PATH.stat().st_size == 0
     )
     if needs_creation:
-        print("🔄 Creating new storage state (first-time login)...")
+        print("[storage_state] Creating new storage state (first-time login)...")
         AUTH_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
         context = browser.new_context()
@@ -64,7 +64,7 @@ def storage_state(browser):
         login_page.login()
 
         context.storage_state(path=AUTH_STATE_PATH)
-        print(f"✅ Storage state saved to {AUTH_STATE_PATH}")
+        print(f"[storage_state] Storage state saved to {AUTH_STATE_PATH}")
 
         page.close()
         context.close()
@@ -78,7 +78,7 @@ def logged_in_page(browser, storage_state):
     context = browser.new_context(storage_state=storage_state)
     page = context.new_page()
     page.goto(config.base_url, wait_until="networkidle")
-    print("🚀 Using saved storage state for fast login")
+    print("[logged_in_page] Using saved storage state for fast login")
     yield page
     page.close()
     context.close()
@@ -103,7 +103,7 @@ def api_logged_in_page(browser):
 
     page = context.new_page()
     page.goto(f"{config.mock_api_url}/inventory.html", wait_until="networkidle")
-    print(f"🚀 API login complete for user: {auth_result['username']}")
+    print(f"API login complete for user: {auth_result['username']}")
     yield page
     page.close()
     context.close()
