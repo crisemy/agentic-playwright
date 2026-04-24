@@ -40,17 +40,17 @@ A modern, production-grade test automation framework built with **Playwright** (
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  Test Machine                                                 │
-│                                                               │
-│  ┌────────────────────┐       ┌───────────────────────────┐ │
-│  │  Mock API Server   │◄──────│   Playwright Tests        │ │
-│  │  (FastAPI :8000)   │       │   (this framework)        │ │
-│  │                    │       │                           │ │
-│  │  POST /login       │       │  1. API login → cookie    │ │
-│  │  GET  /products   │       │  2. UI: product page      │ │
-│  │  POST /cart       │       │  3. Self-healing (Iter 3) │ │
-│  │  GET  /inventory.html     │                           │ │
-│  └────────────────────┘       └───────────────────────────┘ │
+│  Test Machine                                                │
+│                                                              │
+│  ┌────────────────────┐       ┌───────────────────────────┐  │
+│  │  Mock API Server   │◄──────│   Playwright Tests        │  │
+│  │  (FastAPI :8000)   │       │   (this framework)        │  │
+│  │                    │       │                           │  │
+│  │  POST /login       │       │  1. API login → cookie    │  │
+│  │  GET  /products    │       │  2. UI: product page      │  │
+│  │  POST /cart        │       │  3. Self-healing (Iter 3) │  │
+│  │  GET  /inventory.html      │                           │  │
+│  └────────────────────┘       └───────────────────────────┘  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
