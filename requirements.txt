@@ -4,6 +4,12 @@ pytest-html
 pytest-xdist
 pyyaml
 python-dotenv
+httpx
+xai-sdk
+openai
+crewai
+crewai-tools
+litellm
 xai-sdk
 openai
 crewai

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swag Labs</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f8f8f8;
+        }
+        .header {
+            background: #3d5a80;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 1.5rem; }
+        .cart-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .cart-badge {
+            background: #e63946;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem;
+        }
+        .products-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .products-header h2 { color: #333; }
+        .sort-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .product-image {
+            width: 150px; height: 150px;
+            object-fit: contain;
+            margin: 0 auto 1rem;
+        }
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .product-description {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+            min-height: 2.5rem;
+        }
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #3d5a80;
+            margin-bottom: 1rem;
+        }
+        .add-to-cart-btn {
+            background: #3d5a80;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .add-to-cart-btn:hover { background: #2c4a6e; }
+        .add-to-cart-btn.added {
+            background: #2a9d8f;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Swag Labs</h1>
+        <a href="/cart" class="cart-link">
+            <span>🛒</span>
+            Cart
+            <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+    </header>
+
+    <main class="products-container">
+        <div class="products-header">
+            <h2>All Products</h2>
+            <select class="sort-select" id="sort-select" onchange="sortProducts(this.value)">
+                <option value="az">Name (A-Z)</option>
+                <option value="za">Name (Z-A)</option>
+                <option value="lohi">Price (Low to High)</option>
+                <option value="hilo">Price (High to Low)</option>
+            </select>
+        </div>
+
+        <div class="products-grid" id="products-grid">
+            {% for product in products %}
+            <div class="product-card" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-price="{{ product.price }}">
+                <img
+                    src="{{ product.image }}"
+                    alt="{{ product.name }}"
+                    class="product-image"
+                    id="product-image-{{ loop.index }}"
+                />
+                <h3 class="product-title" id="product-title-{{ loop.index }}">{{ product.name }}</h3>
+                <p class="product-description" id="product-desc-{{ loop.index }}">{{ product.description }}</p>
+                <p class="product-price" id="product-price-{{ loop.index }}">${{ "%.2f"|format(product.price) }}</p>
+                <button
+                    class="add-to-cart-btn"
+                    id="add-to-cart-btn-{{ loop.index }}"
+                    onclick="addToCart({{ loop.index }}, '{{ product.id }}')"
+                >
+                    Add to Cart
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script>
+        let cartCount = 0;
+        const cart = {};
+
+        function addToCart(index, productId) {
+            cartCount++;
+            cart[productId] = (cart[productId] || 0) + 1;
+            document.getElementById('cart-badge').textContent = cartCount;
+            const btn = document.getElementById('add-to-cart-btn-' + index);
+            btn.textContent = 'Added ✓';
+            btn.classList.add('added');
+        }
+
+        function sortProducts(order) {
+            const grid = document.getElementById('products-grid');
+            const cards = Array.from(grid.querySelectorAll('.product-card'));
+
+            cards.sort(function(a, b) {
+                if (order === 'az') return a.dataset.productName.localeCompare(b.dataset.productName);
+                if (order === 'za') return b.dataset.productName.localeCompare(a.dataset.productName);
+                if (order === 'lohi') return parseFloat(a.dataset.productPrice) - parseFloat(b.dataset.productPrice);
+                if (order === 'hilo') return parseFloat(b.dataset.productPrice) - parseFloat(a.dataset.productPrice);
+            });
+
+            cards.forEach(function(card) { grid.appendChild(card); });
+        }
+    </script>
+</body>
+</html>
