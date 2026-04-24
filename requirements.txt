@@ -10,8 +10,3 @@ openai
 crewai
 crewai-tools
 litellm
-xai-sdk
-openai
-crewai
-crewai-tools
-litellm

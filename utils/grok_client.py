@@ -86,6 +86,10 @@ class GrokClient:
             return html
         return html[:max_chars] + "\n... [trimmed]"
 
+    def get_llm(self):
+        """Return the underlying CrewAI LLM instance for use by CrewAI agents."""
+        return self.llm
+
     def _strip_markdown(self, text: str) -> str:
         """Remove markdown code fences if the LLM wrapped the selector."""
         text = text.strip()
