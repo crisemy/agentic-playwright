@@ -13,6 +13,7 @@ class Config:
             self.data = yaml.safe_load(f)
         
         self.base_url = self.data["base_url"]
+        self.mock_api_url = self.data.get("mock_api_url", "http://127.0.0.1:8000")
         self.timeout = self.data.get("timeout", 30000)
         
         # Priority: Environment variable > YAML config > Default

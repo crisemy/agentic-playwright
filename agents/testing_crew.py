@@ -6,10 +6,14 @@ from playwright.sync_api import sync_playwright
 from pages.login_page import LoginPage
 from utils.config_loader import Config
 from utils.grok_client import GrokClient
+from agents.chaos_agent import ChaosAgent
 
 config = Config()
 grok_client = GrokClient()
 llm = grok_client.get_llm()   # Reuse your existing GrokClient
+
+# Shared chaos agent instance — controlled by crew tools
+_chaos_agent = ChaosAgent(mutation_rate=1.0)
 
 # ====================== Tools ======================
 @tool("Execute Playwright Test")
@@ -44,13 +48,39 @@ def generate_new_test_code(feature_description: str) -> str:
     You are an expert Playwright + Python automation engineer.
     Generate clean, async, POM-style code for the following new feature:
     {feature_description}
-    
+
     Return only the complete Python code (test function or new Page Object method).
     Use the existing BasePage and LoginPage style from the project.
     """
-    # Use GrokClient's LLM
-    response = llm.call(prompt)   # synchronous call inside tool is fine for CrewAI
+    response = llm.call(prompt)
     return str(response)
+
+@tool("Inject Locator Chaos")
+def inject_locator_chaos(mutation_rate: float = 1.0) -> str:
+    """Inject random locator mutations into the mock server HTML template.
+
+    This simulates a volatile UI where CSS IDs change between test runs,
+    forcing the self-healing locator system to recover automatically.
+
+    Args:
+        mutation_rate: How many locators to break (0.0 to 1.0). Default 1.0 = break all.
+
+    Returns:
+        Summary of mutations applied.
+    """
+    global _chaos_agent
+    _chaos_agent = ChaosAgent(mutation_rate=mutation_rate)
+    mutations = _chaos_agent.inject_chaos()
+    if not mutations:
+        return "No mutations applied."
+    return "\n".join(mutations)
+
+@tool("Restore Locator Chaos")
+def restore_locator_chaos() -> str:
+    """Restore the mock server template to its original state after chaos testing."""
+    global _chaos_agent
+    _chaos_agent.restore()
+    return "Template restored."
 
 # ====================== Agents (all using your GrokClient) ======================
 test_decider = Agent(
@@ -133,19 +163,45 @@ testing_crew = Crew(
     max_rpm=2
 )
 
-def run_full_agentic_swarm(changes: str = "Login and checkout flows were updated", url: str = None):
+def run_full_agentic_swarm(
+    changes: str = "Login and checkout flows were updated",
+    url: str = None,
+    inject_chaos: bool = False,
+    mutation_rate: float = 1.0
+):
+    """Run the full agentic testing swarm.
+
+    Args:
+        changes: Description of code changes for the decider agent.
+        url: Target URL override.
+        inject_chaos: If True, inject locator chaos before running tests.
+        mutation_rate: Chaos mutation rate (0.0-1.0) if inject_chaos is True.
+    """
+    global _chaos_agent
+
     target_url = url or config.base_url
+
+    if inject_chaos:
+        print("💥 [ChaosAgent] Injecting locator chaos before swarm run...")
+        _chaos_agent = ChaosAgent(mutation_rate=mutation_rate)
+        _chaos_agent.inject_chaos()
+
     print("🚀 Starting Agentic Testing Swarm with Grok-powered CrewAI...\n")
-    
+
     result = testing_crew.kickoff(inputs={
         "changes": changes,
         "url": target_url,
         "feature_gap": "Any missing coverage in authentication or new UI elements"
     })
-    
+
     print("\n🎉 Agentic Testing Swarm Finished!")
-    print("="*80)
+    print("=" * 80)
     print(result)
+
+    if inject_chaos:
+        print("\n♻️  Restoring template after chaos run...")
+        _chaos_agent.restore()
+
     return result
 
 if __name__ == "__main__":

@@ -38,6 +38,14 @@ class BasePage:
         self.page.wait_for_selector(selector, timeout=self.timeout)
 
     def smart_locator(self, original_selector: str, element_description: str):
-        """Return a healed locator using Grok if needed"""
+        """Try original selector first, heal only if it fails."""
+        locator = self.page.locator(original_selector)
+        try:
+            if locator.count() > 0:
+                return locator
+        except Exception:
+            pass
+            
+        print(f"🔧 [SmartLocator] Selector '{original_selector}' failed. Attempting self-healing...")
         healed = self.grok.heal_locator(self.page, original_selector, element_description)
         return self.page.locator(healed)

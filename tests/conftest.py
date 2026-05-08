@@ -3,12 +3,12 @@ import pytest
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from utils.config_loader import Config
+from utils.auth import login_api
 from pages.login_page import LoginPage
 
 config = Config()
 
 AUTH_STATE_PATH = Path("auth/storage_state.json")
-
 
 
 @pytest.fixture(scope="session")
@@ -26,7 +26,7 @@ def playwright_instance():
 @pytest.fixture(scope="session")
 def browser(playwright_instance, browser_name):
     """Launch requested browser once per session"""
-    print(f"🚀 Launching {browser_name} browser...")
+    print(f"[browser] Launching {browser_name} browser...")
     b = getattr(playwright_instance, browser_name).launch(
         headless=config.headless,
         slow_mo=config.slow_mo
@@ -53,7 +53,7 @@ def storage_state(browser):
         AUTH_STATE_PATH.stat().st_size == 0
     )
     if needs_creation:
-        print("🔄 Creating new storage state (first-time login)...")
+        print("[storage_state] Creating new storage state (first-time login)...")
         AUTH_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
         context = browser.new_context()
@@ -64,7 +64,7 @@ def storage_state(browser):
         login_page.login()
 
         context.storage_state(path=AUTH_STATE_PATH)
-        print(f"✅ Storage state saved to {AUTH_STATE_PATH}")
+        print(f"[storage_state] Storage state saved to {AUTH_STATE_PATH}")
 
         page.close()
         context.close()
@@ -74,11 +74,36 @@ def storage_state(browser):
 
 @pytest.fixture(scope="function")
 def logged_in_page(browser, storage_state):
-    """Fast login using saved storage state"""
+    """Fast login using saved storage state (UI login — targets SauceDemo)"""
     context = browser.new_context(storage_state=storage_state)
     page = context.new_page()
     page.goto(config.base_url, wait_until="networkidle")
-    print("🚀 Using saved storage state for fast login")
+    print("[logged_in_page] Using saved storage state for fast login")
+    yield page
+    page.close()
+    context.close()
+
+
+@pytest.fixture(scope="function")
+def api_logged_in_page(browser):
+    """Fast login via API call — injects session cookie into Playwright context.
+
+    No browser UI involved for login. Targets the mock API server.
+    """
+    auth_result = login_api()
+    session_id = auth_result["session_id"]
+
+    context = browser.new_context()
+    context.add_cookies([{
+        "name": "session_id",
+        "value": session_id,
+        "domain": "127.0.0.1",
+        "path": "/",
+    }])
+
+    page = context.new_page()
+    page.goto(f"{config.mock_api_url}/inventory.html", wait_until="networkidle")
+    print(f"API login complete for user: {auth_result['username']}")
     yield page
     page.close()
     context.close()
