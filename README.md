@@ -1,4 +1,4 @@
-# Playwright POM Framework with AI Self-Healing
+# 🤖 QA-Cortex: Agentic Testing Framework (Iteration 4)
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/)
 [![Playwright](https://img.shields.io/badge/Playwright-1.58-2EAD33)](https://playwright.dev/python/)
@@ -16,7 +16,10 @@ A modern, production-grade test automation framework built with **Playwright** (
 - **Dual authentication**: UI login (SauceDemo) and API login (mock server)
 - **Fast API login** — ~100ms auth via session cookie, no browser UI involved
 - **Mock API server** — self-contained backend for product/cart operations
-- **Self-healing locators** powered by Grok AI *(heal_locator stub — active in Iteration 3)*
+- **Self-healing locators** powered by Grok AI *(active in Iteration 3)*
+- **Predictive Selection** — LLMs choose which tests to run based on Git diffs *(Iteration 4)*
+- **Root Cause Analysis (RCA)** — `DiagnosisAgent` analyzes failures automatically *(Iteration 4)*
+- **Agentic Dashboard** — Real-time monitoring of swarm intelligence and chaos levels *(Iteration 4)*
 - **Multi-browser support**: Chromium, Firefox
 - **Parallel test execution** with `pytest-xdist`
 - **Professional GitHub Actions CI/CD** with matrix strategy
