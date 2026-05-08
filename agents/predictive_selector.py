@@ -25,31 +25,55 @@ class PredictiveSelector:
     def select_tests(self, diff_content: str) -> list[str]:
         """Ask Grok to identify relevant test files based on the diff."""
         if not diff_content.strip():
-            return ["tests/test_login.py", "tests/test_products.py"] # Default to all if no diff
+            # If no diff, we might be on a clean branch, return all major tests
+            return ["tests/test_login.py", "tests/test_products.py"]
             
         prompt = f"""
+        [CRITICAL: RETURN ONLY FILE PATHS]
         Analyze the following git diff and identify which Playwright tests are most likely affected.
-        Available tests:
-        - tests/test_login.py (Authentication, UI login)
-        - tests/test_products.py (Product list, Cart, Mock API integration)
+        
+        Available tests to choose from:
+        - tests/test_login.py
+        - tests/test_products.py
         
         Git Diff:
         {diff_content[:10000]}
         
-        Return ONLY a comma-separated list of test file paths that should be executed.
-        If unsure, include both.
+        Instructions:
+        1. Identify which test files are affected by the changes in the diff.
+        2. Return ONLY a comma-separated list of the file paths.
+        3. Do NOT include any explanations, reasoning, or extra text.
+        4. If unsure, include both.
+        
+        Example Output:
+        tests/test_login.py, tests/test_products.py
         """
         
         if not self.grok._available:
             return ["tests/test_login.py", "tests/test_products.py"]
             
-        response = self.llm.call(prompt)
-        test_list = [t.strip() for t in str(response).split(",")]
-        return test_list
+        response = str(self.llm.call(prompt)).strip()
+        
+        # Robust parsing: Remove common AI formatting (backticks, dashes, dots)
+        clean_response = response.replace("`", "").replace("- ", "").replace("* ", "")
+        raw_list = [t.strip() for t in clean_response.replace("\n", ",").split(",")]
+        
+        test_list = []
+        for t in raw_list:
+            t = t.strip()
+            if t.endswith(".py") and "tests/" in t:
+                test_list.append(t)
+        
+        # Fallback if parsing failed completely
+        if not test_list:
+            if "login" in response.lower(): test_list.append("tests/test_login.py")
+            if "product" in response.lower(): test_list.append("tests/test_products.py")
+            
+        return list(set(test_list)) # Remove duplicates
 
 if __name__ == "__main__":
     selector = PredictiveSelector()
-    print("🔍 Analyzing changes...")
+    print("Analyzing changes...")
     diff = selector.get_git_diff()
     recommended = selector.select_tests(diff)
-    print(f"🚀 Recommended tests to run: {recommended}")
+    print(f"Recommended tests to run: {recommended}")

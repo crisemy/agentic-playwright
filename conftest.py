@@ -14,21 +14,32 @@ def pytest_addoption(parser):
 
 def pytest_collection_modifyitems(session, config, items):
     """Predictive Test Selection using LLM"""
-    print("\n🧠 [QA-Cortex] Analyzing git diff to select tests...")
+    print("\n[QA-Cortex] Analyzing git diff to select tests...")
     selector = PredictiveSelector()
     diff = selector.get_git_diff()
     
     if diff and diff.strip():
         # Ask LLM which tests to run
         recommended = selector.select_tests(diff)
-        print(f"🎯 [QA-Cortex] Recommended tests: {recommended}")
+        
+        print(f"[QA-Cortex] AI Intelligence suggests focusing on:")
+        for test in recommended:
+            print(f"   ↳  {test}")
+        print("-" * 50)
         
         selected = []
         deselected = []
         for item in items:
-            # Check if any part of the item path matches a recommended test
-            # Remove whitespace and ensure clean string matching
-            if any(rec.strip() in item.nodeid for rec in recommended if rec.strip()):
+            # Check if any recommended test matches the item path
+            # We normalize slashes and strip extra chars to be safe
+            is_selected = False
+            for rec in recommended:
+                clean_rec = rec.strip().replace("\\", "/").replace("`", "")
+                if clean_rec in item.nodeid.replace("\\", "/"):
+                    is_selected = True
+                    break
+            
+            if is_selected:
                 selected.append(item)
             else:
                 deselected.append(item)
@@ -72,7 +83,7 @@ def pytest_runtest_makereport(item, call):
             
         traceback_str = rep.longreprtext
         
-        print(f"\n🚑 [QA-Cortex] Test '{item.name}' failed! Triggering Root Cause Analysis...")
+        print(f"\n[QA-Cortex] Test '{item.name}' failed! Triggering Root Cause Analysis...")
         DashboardManager.log_thought("DiagnosisAgent", f"Analyzing failure in {item.name}...")
         
         try:
@@ -82,8 +93,8 @@ def pytest_runtest_makereport(item, call):
                 dom_snapshot=dom_snapshot, 
                 original_test_code=test_code
             )
-            print(f"\n📊 [Diagnosis Report]\n{report}\n")
+            print(f"\n[Diagnosis Report]\n{report}\n")
             DashboardManager.log_thought("DiagnosisAgent", f"RCA Complete for {item.name}:\n{report}")
         except Exception as e:
-            print(f"⚠️ RCA Agent failed: {e}")
+            print(f"RCA Agent failed: {e}")
             DashboardManager.log_thought("DiagnosisAgent", f"Failed to analyze {item.name}: {e}")
