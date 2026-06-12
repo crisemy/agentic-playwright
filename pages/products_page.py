@@ -42,7 +42,9 @@ class ProductsPage(BasePage):
 
     def get_product_count(self) -> int:
         """Return the number of visible product cards."""
-        grid = self.smart_locator("#products-grid", "Products grid container")
+        # grid = self.smart_locator("#products-grid", "Products grid container")
+        # Changing it to a broken locator for test purpose
+        grid = self.smart_locator("#products-grid-broken", "Products grid container")
         return grid.locator(".product-card").count()
 
     def get_product_titles(self) -> list[str]:

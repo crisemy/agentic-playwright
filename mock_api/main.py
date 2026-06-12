@@ -10,6 +10,11 @@ from jinja2 import Template
 
 from mock_api.products import PRODUCTS
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.dashboard_manager import DashboardManager
+
 # --- App setup ---------------------------------------------------------------
 
 app = FastAPI(title="Swag Labs Mock API")
@@ -128,6 +133,20 @@ def inventory_page(session_id: Optional[str] = Cookie(None)) -> HTMLResponse:
         return HTMLResponse(content="<h1>Please <a href='/'>login</a> first.</h1>", status_code=401)
 
     return HTMLResponse(content=_render_inventory())
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard_page() -> HTMLResponse:
+    """Serve the QA-Cortex dashboard."""
+    template = Template(_load_template("dashboard.html"))
+    logs = DashboardManager.get_logs()
+    
+    return template.render(
+        chaos_level="High",
+        tests_count=len(logs),
+        heal_rate=85,
+        logs=reversed(logs)
+    )
 
 
 @app.get("/", response_class=HTMLResponse)

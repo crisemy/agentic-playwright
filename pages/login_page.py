@@ -19,6 +19,8 @@ class LoginPage(BasePage):
         self.username = self.page.locator("#user-name")
         self.password = self.page.locator("#password")
         self.login_btn = self.page.locator("#login-button")
+        # Modifying it on purpose
+        # self.login_btn = self.page.locator("#login-button-broken")
         self.error_msg = self.page.locator("h3[data-test='error']")
 
     def login(self, username: str = None, password: str = None):
@@ -27,4 +29,4 @@ class LoginPage(BasePage):
         self.username.fill(user["username"])
         self.password.fill(user["password"])
         self.login_btn.click()
-        print(f"🔑 Login performed with user: {user['username']}")
+        print(f"Login performed with user: {user['username']}")

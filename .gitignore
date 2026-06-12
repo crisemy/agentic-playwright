@@ -7,7 +7,11 @@ __pycache__/
 screenshots/
 auth/
 reports/
+prueba.md
+mock_api/
 
+# Personal files
 linkedIN-speach.txt
 new-iterations.txt
 mock_api/server.log
+prueba.md

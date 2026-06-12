@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swag Labs</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f8f8f8;
+        }
+        .header {
+            background: #3d5a80;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 1.5rem; }
+        .cart-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .cart-badge {
+            background: #e63946;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem;
+        }
+        .products-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .products-header h2 { color: #333; }
+        .sort-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .product-image {
+            width: 150px; height: 150px;
+            object-fit: contain;
+            margin: 0 auto 1rem;
+        }
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .product-description {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+            min-height: 2.5rem;
+        }
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #3d5a80;
+            margin-bottom: 1rem;
+        }
+        .add-to-cart-btn {
+            background: #3d5a80;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .add-to-cart-btn:hover { background: #2c4a6e; }
+        .add-to-cart-btn.added {
+            background: #2a9d8f;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Swag Labs</h1>
+        <a href="/cart" class="cart-link">
+            <span>🛒</span>
+            Cart
+            <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+    </header>
+
+    <main class="products-container">
+        <div class="products-header">
+            <h2>All Products</h2>
+            <select class="sort-select" id="sort-select" onchange="sortProducts(this.value)">
+                <option value="az">Name (A-Z)</option>
+                <option value="za">Name (Z-A)</option>
+                <option value="lohi">Price (Low to High)</option>
+                <option value="hilo">Price (High to Low)</option>
+            </select>
+        </div>
+
+        <div class="products-grid" id="products-grid">
+            
+            <div class="product-card" data-product-id="prod-001" data-product-name="Sauce Labs Backpack" data-product-price="29.99">
+                <img
+                    src="https://placehold.co/150x150/3d5a80/white?text=Backpack"
+                    alt="Sauce Labs Backpack"
+                    class="product-image"
+                    id="product-image-1"
+                />
+                <h3 class="product-title" id="product-title-1">Sauce Labs Backpack</h3>
+                <p class="product-description" id="product-desc-1">A rugged and stylish backpack for your daily adventures.</p>
+                <p class="product-price" id="product-price-1">$29.99</p>
+                <button
+                    class="add-to-cart-btn"
+                    id="add-to-cart-btn-1"
+                    onclick="addToCart(1, 'prod-001')"
+                >
+                    Add to Cart
+                </button>
+            </div>
+            
+            <div class="product-card" data-product-id="prod-002" data-product-name="Sauce Labs Bike Light" data-product-price="14.99">
+                <img
+                    src="https://placehold.co/150x150/2a9d8f/white?text=Bike+Light"
+                    alt="Sauce Labs Bike Light"
+                    class="product-image"
+                    id="product-image-2"
+                />
+                <h3 class="product-title" id="product-title-2">Sauce Labs Bike Light</h3>
+                <p class="product-description" id="product-desc-2">Bright LED bike light that clips anywhere.</p>
+                <p class="product-price" id="product-price-2">$14.99</p>
+                <button
+                    class="add-to-cart-btn"
+                    id="add-to-cart-btn-2"
+                    onclick="addToCart(2, 'prod-002')"
+                >
+                    Add to Cart
+                </button>
+            </div>
+            
+            <div class="product-card" data-product-id="prod-003" data-product-name="Sauce Labs Bolt T-Shirt" data-product-price="19.99">
+                <img
+                    src="https://placehold.co/150x150/e63946/white?text=Bolt+Shirt"
+                    alt="Sauce Labs Bolt T-Shirt"
+                    class="product-image"
+                    id="product-image-3"
+                />
+                <h3 class="product-title" id="product-title-3">Sauce Labs Bolt T-Shirt</h3>
+                <p class="product-description" id="product-desc-3">Premium cotton t-shirt with the iconic Sauce Labs bolt.</p>
+                <p class="product-price" id="product-price-3">$19.99</p>
+                <button
+                    class="add-to-cart-btn"
+                    id="add-to-cart-btn-3"
+                    onclick="addToCart(3, 'prod-003')"
+                >
+                    Add to Cart
+                </button>
+            </div>
+            
+            <div class="product-card" data-product-id="prod-004" data-product-name="Sauce Labs Cap" data-product-price="12.99">
+                <img
+                    src="https://placehold.co/150x150/457b9d/white?text=Cap"
+                    alt="Sauce Labs Cap"
+                    class="product-image"
+                    id="product-image-4"
+                />
+                <h3 class="product-title" id="product-title-4">Sauce Labs Cap</h3>
+                <p class="product-description" id="product-desc-4">Comfortable adjustable cap in navy blue.</p>
+                <p class="product-price" id="product-price-4">$12.99</p>
+                <button
+                    class="add-to-cart-btn"
+                    id="add-to-cart-btn-4"
+                    onclick="addToCart(4, 'prod-004')"
+                >
+                    Add to Cart
+                </button>
+            </div>
+            
+            <div class="product-card" data-product-id="prod-005" data-product-name="Sauce Labs Hoodie" data-product-price="49.99">
+                <img
+                    src="https://placehold.co/150x150/1d3557/white?text=Hoodie"
+                    alt="Sauce Labs Hoodie"
+                    class="product-image"
+                    id="product-image-5"
+                />
+                <h3 class="product-title" id="product-title-5">Sauce Labs Hoodie</h3>
+                <p class="product-description" id="product-desc-5">Soft fleece hoodie with front pocket and drawstrings.</p>
+                <p class="product-price" id="product-price-5">$49.99</p>
+                <button
+                    class="add-to-cart-btn"
+                    id="add-to-cart-btn-5"
+                    onclick="addToCart(5, 'prod-005')"
+                >
+                    Add to Cart
+                </button>
+            </div>
+            
+            <div class="product-card" data-product-id="prod-006" data-product-name="Sauce Labs Onesie" data-product-price="9.99">
+                <img
+                    src="https://placehold.co/150x150/f4a261/white?text=Onesie"
+                    alt="Sauce Labs Onesie"
+                    class="product-image"
+                    id="product-image-6"
+                />
+                <h3 class="product-title" id="product-title-6">Sauce Labs Onesie</h3>
+                <p class="product-description" id="product-desc-6">The legendary Sauce Labs onesie for all ages.</p>
+                <p class="product-price" id="product-price-6">$9.99</p>
+                <button
+                    class="add-to-cart-btn"
+                    id="add-to-cart-btn-6"
+                    onclick="addToCart(6, 'prod-006')"
+                >
+                    Add to Cart
+                </button>
+            </div>
+            
+        </div>
+    </main>
+
+    <script>
+        let cartCount = 0;
+        const cart = {};
+
+        function addToCart(index, productId) {
+            cartCount++;
+            cart[productId] = (cart[productId] || 0) + 1;
+            document.getElementById('cart-badge').textContent = cartCount;
+            const btn = document.getElementById('add-to-cart-btn-' + index);
+            btn.textContent = 'Added ✓';
+            btn.classList.add('added');
+        }
+
+        function sortProducts(order) {
+            const grid = document.getElementById('products-grid');
+            const cards = Array.from(grid.querySelectorAll('.product-card'));
+
+            cards.sort(function(a, b) {
+                if (order === 'az') return a.dataset.productName.localeCompare(b.dataset.productName);
+                if (order === 'za') return b.dataset.productName.localeCompare(a.dataset.productName);
+                if (order === 'lohi') return parseFloat(a.dataset.productPrice) - parseFloat(b.dataset.productPrice);
+                if (order === 'hilo') return parseFloat(b.dataset.productPrice) - parseFloat(a.dataset.productPrice);
+            });
+
+            cards.forEach(function(card) { grid.appendChild(card); });
+        }
+    </script>
+</body>
+</html>
